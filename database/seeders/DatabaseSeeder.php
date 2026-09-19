@@ -16,6 +16,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             RoomSeeder::class,
             TenentSeeder::class,
+            MeterReadingSeeder::class,
+            InvoicesSeeder::class,
         ]);
     }
 }

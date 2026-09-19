@@ -1,462 +1,357 @@
 @extends('backend.layouts.pages-layout')
 @section('pageTitle', isset($pageTitle) ? $pageTitle : 'Page Title Here')
 @section('content')
+    <style>
+        .dash-trend-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            column-gap: 16px;
+        }
+
+        .dash-bar-track {
+            height: 198px;
+        }
+
+        .dash-row-border {
+            border-bottom-width: 1px;
+        }
+
+        .dash-table-min {
+            min-width: 560px;
+        }
+
+        .dash-invoices-col {
+            grid-column: span 1 / span 1;
+        }
+
+        @media (min-width: 1280px) {
+            .dash-invoices-col {
+                grid-column: span 2 / span 2;
+            }
+        }
+
+        .dash-mt-1 {
+            margin-top: 4px;
+        }
+
+        .dash-icon-white {
+            filter: brightness(0) invert(1);
+        }
+    </style>
     <div>
+        <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-6">
+            Overview for
+            <span class="font-semibold text-gray-1100 dark:text-gray-dark-1100">{{ $currentMonthLabel }}</span>
+        </p>
+
+        {{-- ── Stat cards ── --}}
         <div class="grid grid-cols-1 gap-6 mb-[26px] lg:grid-cols-2 xl:grid-cols-4">
             <div
                 class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-desc text-gray-500 dark:text-gray-dark-500">Total sells</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove">
-                                        <span class="text-red text-[11px] leading-4">Remove widget</span></a>
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
+                <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-4">Monthly Revenue</p>
                 <div class="flex items-center justify-between mb-[2px]">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-lg grid place-items-center bg-green"><img
-                                src="/backend/assets/images/icons/icon-bag-happy.svg" alt=""></div>
-                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">$126.500
-                        </p>
+                                class="dash-icon-white" src="/backend/assets/images/icons/icon-bar-chart.svg" alt=""></div>
+                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">
+                            ${{ number_format($monthlyRevenue, 2) }}</p>
                     </div>
-                    <div class="flex items-center gap-[7px]"><img src="/backend/assets/images/icons/icon-export-green.svg"
-                            alt=""><span class="text-green text-subtitle font-medium">34.7%</span></div>
+                    <div class="flex items-center gap-[7px]">
+                        <img src="/backend/assets/images/icons/icon-export-{{ $revenueChange >= 0 ? 'green' : 'red' }}.svg"
+                            alt="">
+                        <span
+                            class="{{ $revenueChange >= 0 ? 'text-green' : 'text-red' }} text-subtitle font-medium">{{ number_format(abs($revenueChange), 1) }}%</span>
+                    </div>
                 </div>
-                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">Compared
-                    to Jan 2022</p>
+                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">vs last month
+                </p>
             </div>
+
             <div
                 class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-desc text-gray-500 dark:text-gray-dark-500">Orders value</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#">
-                                        <span class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove">
-                                        <span class="text-red text-[11px] leading-4">Remove widget</span></a>
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
+                <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-4">Collected</p>
                 <div class="flex items-center justify-between mb-[2px]">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-lg grid place-items-center bg-blue"><img
-                                src="/backend/assets/images/icons/icon-bag-happy.svg" alt=""></div>
-                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">$136.800
-                        </p>
+                                class="dash-icon-white" src="/backend/assets/images/icons/icon-money.svg" alt=""></div>
+                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">
+                            ${{ number_format($collected, 2) }}</p>
                     </div>
-                    <div class="flex items-center gap-[7px]"><img src="/backend/assets/images/icons/icon-export-green.svg"
-                            alt=""><span class="text-green text-subtitle font-medium">22.8%</span></div>
+                    <span class="text-desc text-gray-400 dark:text-gray-dark-400">{{ $paidCount }} paid</span>
                 </div>
-                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">
-                    Compared to Jan 2022</p>
+                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">of
+                    ${{ number_format($monthlyRevenue, 2) }} billed</p>
             </div>
+
             <div
                 class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-desc text-gray-500 dark:text-gray-dark-500">Daily orders</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove"> <span class="text-red text-[11px] leading-4">Remove
-                                            widget</span></a>
-                                </li>
-                            </div>
-                        </ul>
+                <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-4">Outstanding</p>
+                <div class="flex items-center justify-between mb-[2px]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg grid place-items-center bg-red"><img
+                                class="dash-icon-white" src="/backend/assets/images/icons/icon-wallet.svg" alt=""></div>
+                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">
+                            ${{ number_format($outstanding, 2) }}</p>
                     </div>
+                    <span class="text-desc text-red font-semibold">{{ $unpaidCount }} unpaid</span>
                 </div>
+                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">needs
+                    collecting</p>
+            </div>
+
+            <div
+                class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
+                <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-4">Occupancy</p>
                 <div class="flex items-center justify-between mb-[2px]">
                     <div class="flex items-center gap-2">
                         <div class="w-8 h-8 rounded-lg grid place-items-center bg-violet"><img
-                                src="/backend/assets/images/icons/icon-bag-happy.svg" alt=""></div>
-                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">$25.200
-                        </p>
+                                class="dash-icon-white" src="/backend/assets/images/icons/icon-home-hashtag.svg" alt=""></div>
+                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">
+                            {{ $occupancyRate }}%</p>
                     </div>
-                    <div class="flex items-center gap-[7px]"><img src="/backend/assets/images/icons/icon-export-green.svg"
-                            alt=""><span class="text-green text-subtitle font-medium">17.8%</span></div>
+                    <span class="text-desc text-gray-400 dark:text-gray-dark-400">{{ $rentedRooms }}/{{ $totalRooms }}
+                        rooms</span>
                 </div>
                 <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">
-                    Compared to Jan 2022</p>
-            </div>
-            <div
-                class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
-                <div class="flex items-center justify-between mb-4">
-                    <p class="text-desc text-gray-500 dark:text-gray-dark-500">Total sells</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove"> <span class="text-red text-[11px] leading-4">Remove
-                                            widget</span></a>
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
-                </div>
-                <div class="flex items-center justify-between mb-[2px]">
-                    <div class="flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg grid place-items-center bg-pink"><img
-                                src="/backend/assets/images/icons/icon-bag-happy.svg" alt=""></div>
-                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">$12.125
-                        </p>
-                    </div>
-                    <div class="flex items-center gap-[7px]"><img src="/backend/assets/images/icons/icon-export-green.svg"
-                            alt=""><span class="text-green text-subtitle font-medium">23.9%</span></div>
-                </div>
-                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">
-                    Compared to Jan 2022</p>
+                    {{ $totalTenants }} tenants total</p>
             </div>
         </div>
 
+        {{-- ── Trend + status row ── --}}
+        <div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-3">
+            <div
+                class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg flex-1 p-[25px]">
+                <div
+                    class="flex items-center justify-between pb-3 border-neutral dash-row-border mb-5 dark:border-dark-neutral-border">
+                    <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Revenue
+                        Trend</p>
+                </div>
+                <div class="dash-trend-grid">
+                    @foreach ($trendLabels as $i => $label)
+                        @php
+                            $val = $trendRevenue[$i];
+                            $heightPct = $maxTrendRevenue > 0 ? max(4, round($val / $maxTrendRevenue * 100)) : 4;
+                            $isCurrent = $i === $trendLabels->count() - 1;
+                        @endphp
+                        <div class="flex flex-col-reverse gap-y-[10px]">
+                            <p
+                                class="text-xs {{ $isCurrent ? 'text-color-brands font-semibold' : 'text-gray-400 dark:text-gray-dark-400' }}">
+                                {{ $label }}</p>
+                            <div class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border dash-bar-track"
+                                title="${{ number_format($val, 2) }}">
+                                <div class="w-full block {{ $isCurrent ? 'bg-color-brands' : 'bg-blue' }} absolute bottom-0 rounded-[10px]"
+                                    style="height: {{ $heightPct }}%"></div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
 
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div
                 class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg flex-1 p-[25px]">
                 <div
-                    class="flex items-center justify-between pb-3 border-neutral border-b mb-5 dark:border-dark-neutral-border">
-                    <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">
-                        Market Overview</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove"> <span class="text-red text-[11px] leading-4">Remove
-                                            widget</span></a>
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
+                    class="flex items-center justify-between pb-3 border-neutral dash-row-border mb-5 dark:border-dark-neutral-border">
+                    <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Room
+                        Status</p>
                 </div>
-                <div class="grid grid-cols-7 gap-x-[27.45px]">
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-gray-400 dark:text-gray-dark-400">Mon</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
+                <div>
+                    <canvas class="max-h-[240px] lg:max-h-[123px] xl:max-h-[200px]" width="400" height="400"
+                        id="roomStatusChart"></canvas>
+                </div>
+                <div class="flex items-center justify-between mt-5 text-xs flex-wrap gap-y-2">
+                    <div class="flex items-center gap-x-2"><span class="w-2 h-2 rounded-full bg-red inline-block"></span>
+                        <span class="text-gray-500 dark:text-gray-dark-500">Rented ({{ $rentedRooms }})</span>
                     </div>
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-gray-400 dark:text-gray-dark-400">Tue</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-x-2"><span
+                            class="w-2 h-2 rounded-full bg-yellow inline-block"></span>
+                        <span class="text-gray-500 dark:text-gray-dark-500">Booked ({{ $bookedRooms }})</span>
                     </div>
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-gray-400 dark:text-gray-dark-400">Wed</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-gray-400 dark:text-gray-dark-400">Thu</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-gray-400 dark:text-gray-dark-400">Fri</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-red dark:text-red">Sat</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex flex-col-reverse gap-y-[10px]">
-                        <p class="text-xs text-red dark:text-red">Sun</p>
-                        <div
-                            class="relative bg-neutral rounded-[10px] dark:bg-dark-neutral-border h-[198px] max-w-[21.12px]">
-                            <div class="w-full block bg-color-brands absolute bottom-0 rounded-[10px] h-[50%]">
-                            </div>
-                        </div>
+                    <div class="flex items-center gap-x-2"><span
+                            class="w-2 h-2 rounded-full bg-green inline-block"></span>
+                        <span class="text-gray-500 dark:text-gray-dark-500">Available ({{ $availableRooms }})</span>
                     </div>
                 </div>
             </div>
+
             <div
                 class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg flex-1 p-[25px]">
                 <div
-                    class="flex items-center justify-between pb-3 border-neutral border-b mb-5 dark:border-dark-neutral-border">
-                    <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">
-                        Visits by Source</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove"> <span class="text-red text-[11px] leading-4">Remove
-                                            widget</span></a>
-                                </li>
-                            </div>
-                        </ul>
-                    </div>
+                    class="flex items-center justify-between pb-3 border-neutral dash-row-border mb-5 dark:border-dark-neutral-border">
+                    <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">Outstanding
+                        Trend</p>
                 </div>
                 <div>
-                    <div>
-                        <canvas class="max-h-[240px] lg:max-h-[123px] xl:max-h-[200px]" width="400" height="400"
-                            id="visitChart"></canvas>
-                    </div>
+                    <canvas class="max-h-[240px] lg:max-h-[123px] xl:max-h-[200px]" width="400" height="400"
+                        id="outstandingTrendChart"></canvas>
                 </div>
-                <p class="text-desc text-gray-500 mt-3 dark:text-gray-dark-500">Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
+                <p class="text-desc text-gray-500 mt-3 dark:text-gray-dark-500">
+                    ${{ number_format($outstanding, 2) }} currently outstanding across {{ $unpaidCount }}
+                    invoice{{ $unpaidCount === 1 ? '' : 's' }}.
+                </p>
             </div>
+        </div>
+
+        {{-- ── Usage row ── --}}
+        <div class="grid grid-cols-1 gap-6 mb-6 lg:grid-cols-2">
             <div
-                class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg flex-1 p-[25px]">
-                <div
-                    class="flex items-center justify-between pb-3 border-neutral border-b mb-5 dark:border-dark-neutral-border">
-                    <p class="text-subtitle-semibold font-semibold text-gray-1100 dark:text-gray-dark-1100">
-                        Total Revenue</p>
-                    <div class="dropdown dropdown-end ml-auto translate-x-4 z-10">
-                        <label class="cursor-pointer dropdown-label flex items-center justify-between py-2 px-4"
-                            tabindex="0"><img class="cursor-pointer" src="/backend/assets/images/icons/icon-toggle.svg"
-                                alt="toggle icon">
-                        </label>
-                        <ul class="dropdown-content" tabindex="0">
-                            <div
-                                class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border  dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                <div
-                                    class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Sales
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Export
-                                            report</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Profit
-                                            manage</span></a>
-                                </li>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#"> <span
-                                            class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Revenue
-                                            report</span></a>
-                                </li>
-                                <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                </div>
-                                <li class="text-normal mb-[7px]"><a class="flex items-center bg-transparent p-0 gap-[7px]"
-                                        href="#remove"> <span class="text-red text-[11px] leading-4">Remove
-                                            widget</span></a>
-                                </li>
+                class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
+                <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-4">Water Usage ({{ $currentMonthLabel }})
+                </p>
+                <div class="flex items-center justify-between mb-[2px]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg grid place-items-center bg-blue"><img
+                                class="dash-icon-white" src="/backend/assets/images/icons/icon-economy.svg" alt=""></div>
+                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">
+                            {{ number_format($waterUsedTotal) }} m&sup3;</p>
+                    </div>
+                    <span class="text-desc text-gray-400 dark:text-gray-dark-400">${{ number_format($waterCostTotal, 2) }}</span>
+                </div>
+                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">billed this
+                    month</p>
+            </div>
+
+            <div
+                class="rounded-2xl border border-neutral bg-neutral-bg dark:border-dark-neutral-border dark:bg-dark-neutral-bg py-4 flex-1 px-[19px]">
+                <p class="text-desc text-gray-500 dark:text-gray-dark-500 mb-4">Electric Usage
+                    ({{ $currentMonthLabel }})</p>
+                <div class="flex items-center justify-between mb-[2px]">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg grid place-items-center bg-violet"><img
+                                class="dash-icon-white" src="/backend/assets/images/icons/icon-flash.svg" alt=""></div>
+                        <p class="text-btn-label font-bold text-gray-1100 dark:text-gray-dark-1100">
+                            {{ number_format($electricUsedTotal) }} kWh</p>
+                    </div>
+                    <span
+                        class="text-desc text-gray-400 dark:text-gray-dark-400">${{ number_format($electricCostTotal, 2) }}</span>
+                </div>
+                <p class="text-right text-gray-400 dark:text-gray-dark-400 text-[11px] leading-[16px]">billed this
+                    month</p>
+            </div>
+        </div>
+
+        {{-- ── Invoices row ── --}}
+        <div class="grid grid-cols-1 gap-6 xl:grid-cols-3">
+            <div
+                class="dash-invoices-col border p-6 bg-neutral-bg rounded-2xl border-neutral pb-0 overflow-x-scroll scrollbar-hide dark:bg-dark-neutral-bg dark:border-dark-neutral-border xl:overflow-x-hidden">
+                <div class="flex items-center justify-between mb-6">
+                    <p class="text-base leading-5 text-gray-1100 font-semibold dark:text-gray-dark-1100">Recent
+                        Invoices</p>
+                    <a href="{{ route('invoices.index') }}"
+                        class="text-desc text-color-brands font-semibold hover:opacity-75">View all</a>
+                </div>
+                <table class="w-full dash-table-min">
+                    <tbody>
+                        <tr>
+                            <th class="dash-row-border border-neutral pb-[17px] dark:border-dark-neutral-border text-left">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-dark-500">Room</span>
+                            </th>
+                            <th class="dash-row-border border-neutral pb-[17px] dark:border-dark-neutral-border text-left">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-dark-500">Tenant</span>
+                            </th>
+                            <th class="dash-row-border border-neutral pb-[17px] dark:border-dark-neutral-border text-left">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-dark-500">Month</span>
+                            </th>
+                            <th class="dash-row-border border-neutral pb-[17px] dark:border-dark-neutral-border text-right">
+                                <span class="text-xs font-semibold text-gray-500 dark:text-gray-dark-500">Amount</span>
+                            </th>
+                        </tr>
+                        @forelse ($recentInvoices as $inv)
+                            <tr>
+                                <td class="dash-row-border border-neutral py-5 dark:border-dark-neutral-border">
+                                    <p class="text-sm leading-4 text-gray-1100 font-semibold dark:text-gray-dark-1100">
+                                        #{{ $inv->room->number ?? '—' }}</p>
+                                </td>
+                                <td class="dash-row-border border-neutral py-5 dark:border-dark-neutral-border">
+                                    <p class="text-sm leading-4 text-gray-500 dark:text-gray-dark-500">
+                                        {{ $inv->tenant->name ?? 'N/A' }}</p>
+                                </td>
+                                <td class="dash-row-border border-neutral py-5 dark:border-dark-neutral-border">
+                                    <p class="text-sm leading-4 text-gray-500 dark:text-gray-dark-500">
+                                        {{ \Carbon\Carbon::parse($inv->month . '-01')->format('M Y') }}</p>
+                                </td>
+                                <td class="dash-row-border border-neutral py-5 dark:border-dark-neutral-border text-right">
+                                    <p class="text-sm leading-4 text-gray-1100 font-semibold dark:text-gray-dark-1100">
+                                        ${{ number_format($inv->total_amount, 2) }}</p>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="py-8 text-center text-gray-400 dark:text-gray-dark-400 text-sm">
+                                    No invoices yet.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <div
+                class="border p-6 bg-neutral-bg rounded-2xl border-neutral dark:bg-dark-neutral-bg dark:border-dark-neutral-border">
+                <p class="text-base leading-5 text-gray-1100 font-semibold mb-6 dark:text-gray-dark-1100">Top
+                    Outstanding</p>
+                <div class="flex flex-col gap-5">
+                    @forelse ($topOutstanding as $inv)
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm leading-4 text-gray-1100 font-semibold dark:text-gray-dark-1100">
+                                    Room #{{ $inv->room->number ?? '—' }}</p>
+                                <p class="text-xs text-gray-400 dark:text-gray-dark-400 dash-mt-1">
+                                    {{ $inv->tenant->name ?? 'N/A' }}</p>
                             </div>
-                        </ul>
-                    </div>
+                            <p class="text-sm font-bold text-red">${{ number_format($inv->total_amount, 2) }}</p>
+                        </div>
+                    @empty
+                        <p class="text-desc text-gray-400 dark:text-gray-dark-400">All caught up — no outstanding
+                            invoices this month.</p>
+                    @endforelse
                 </div>
-                <div>
-                    <div>
-                        <canvas class="max-h-[240px] lg:max-h-[123px] xl:max-h-[200px]" width="400" height="400"
-                            id="revenueChart"></canvas>
-                    </div>
-                </div>
-                <p class="text-desc text-gray-500 mt-3 dark:text-gray-dark-500">Lorem ipsum dolor sit amet,
-                    consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var roomStatusCtx = document.getElementById('roomStatusChart');
+            if (roomStatusCtx && window.Chart) {
+                new Chart(roomStatusCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Rented', 'Booked', 'Available'],
+                        datasets: [{
+                            data: [{{ $rentedRooms }}, {{ $bookedRooms }}, {{ $availableRooms }}],
+                            backgroundColor: ['#E23738', '#F5A623', '#50D1B2'],
+                            borderWidth: 0,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        cutout: '70%',
+                        plugins: { legend: { display: false }, tooltip: { enabled: true } },
+                    },
+                });
+            }
+
+            var outstandingCtx = document.getElementById('outstandingTrendChart');
+            if (outstandingCtx && window.Chart) {
+                new Chart(outstandingCtx, {
+                    type: 'line',
+                    data: {
+                        labels: {!! $trendLabels->values()->toJson() !!},
+                        datasets: [{
+                            label: 'Outstanding',
+                            data: {!! $trendOutstanding->values()->toJson() !!},
+                            borderColor: '#E23738',
+                            backgroundColor: '#E23738',
+                            pointRadius: 0,
+                            tension: 0.4,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        scales: { x: { display: false }, y: { display: false } },
+                        plugins: { legend: { display: false } },
+                    },
+                });
+            }
+        });
+    </script>
 @endsection
