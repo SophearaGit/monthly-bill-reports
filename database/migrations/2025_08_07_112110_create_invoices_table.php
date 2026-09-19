@@ -15,8 +15,17 @@ return new class extends Migration {
             $table->foreignId('room_id')->constrained('rooms')->onDelete('cascade');
             $table->foreignId('tenant_id')->nullable()->constrained('tenents')->onDelete('set null');
             $table->string('month', 7); // e.g., "2025-08"
+
+            $table->decimal('water_old', 8, 2)->default(0);
+            $table->decimal('water_new', 8, 2)->default(0);
             $table->decimal('water_used', 8, 2)->default(0);
+            $table->decimal('water_used_price', 10, 2)->default(0);
+
+            $table->decimal('electric_old', 8, 2)->default(0);
+            $table->decimal('electric_new', 8, 2)->default(0);
             $table->decimal('electric_used', 8, 2)->default(0);
+            $table->decimal('electric_used_price', 10, 2)->default(0);
+
             $table->decimal('water_cost', 10, 2)->default(0);
             $table->decimal('electric_cost', 10, 2)->default(0);
             $table->decimal('rent_cost', 10, 2)->default(0);

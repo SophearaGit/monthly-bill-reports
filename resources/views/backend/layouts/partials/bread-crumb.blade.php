@@ -7,6 +7,8 @@
         Tenents
     @elseif (Route::is('meter_readings.index'))
         Meter Readings
+    @elseif('invoices.index')
+        Invoice Lists
     @endif
 </h2>
 <div class="flex items-center text-xs text-gray-500 gap-x-[11px] mb-[37px]">
@@ -22,6 +24,8 @@
             Tenents
         @elseif (Route::is('meter_readings.index'))
             Meter Readings
+        @elseif (Route::is('invoices.index'))
+            Invoice Lists
         @endif
     </span>
 </div>

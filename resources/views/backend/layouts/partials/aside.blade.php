@@ -55,8 +55,8 @@
                 <label
                     class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
                     for="meter-readings">
-                    <div class="flex items-center gap-[10px]"><img
-                            src="/backend/assets/images/icons/icon-analytics.svg" alt="side menu icon"><span
+                    <div class="flex items-center gap-[10px]"><img src="/backend/assets/images/icons/icon-analytics.svg"
+                            alt="side menu icon"><span
                             class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
                             <a href="{{ route('meter_readings.index') }}">
                                 Meter Readings
@@ -71,8 +71,8 @@
                 <label
                     class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
                     for="invoices">
-                    <div class="flex items-center gap-[10px]"><img
-                            src="/backend/assets/images/icons/icon-wallet.svg" alt="side menu icon"><span
+                    <div class="flex items-center gap-[10px]"><img src="/backend/assets/images/icons/icon-wallet.svg"
+                            alt="side menu icon"><span
                             class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
                             <a href="{{ route('invoices.index') }}">
                                 Invoices
@@ -115,7 +115,7 @@
                         src="/backend/assets/images/icons/icon-sun-active.svg" alt="sun icon"></i>
             </div>
             <div class="bg-neutral-bg w-[2px] h-[30px] dark:bg-dark-neutral-bg"></div>
-            <div> <img class="cursor-pointer" id="sidebar-expand" src="/backend/assets/images/icons/icon-maximize-3.svg"
-                    alt="expand icon"></div>
+            <div> <img class="cursor-pointer" id="sidebar-expand"
+                    src="/backend/assets/images/icons/icon-maximize-3.svg" alt="expand icon"></div>
         </div>
 </aside>

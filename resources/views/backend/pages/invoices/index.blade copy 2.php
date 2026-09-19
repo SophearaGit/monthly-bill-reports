@@ -5,17 +5,16 @@
     <div class="inv-page">
 
         {{-- Search --}}
-        <form method="GET" action="{{ route('invoices.index') }}" class="inv-search" id="inv-search-form">
+        <form method="GET" action="{{ route('invoices.index') }}" class="inv-search">
             <div class="inv-search-inner">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="3" y="4.5" width="18" height="16" rx="3" />
-                    <line x1="16" y1="2.5" x2="16" y2="6.5" />
-                    <line x1="8" y1="2.5" x2="8" y2="6.5" />
-                    <line x1="3" y1="10" x2="21" y2="10" />
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
                 </svg>
-                <input type="text" id="month-picker" name="month" class="inv-month-input"
-                    value="{{ $selectedMonth ?? request('month', now()->format('Y-m')) }}" readonly>
+                <input type="month" name="month" value="{{ request('month') }}" class="inv-month-input"
+                    placeholder="Select month">
             </div>
+            <button type="submit" class="inv-btn-show">Show</button>
         </form>
 
         {{-- Bulk action toolbar (hidden until checkboxes selected) --}}
@@ -56,9 +55,9 @@
         <div class="inv-card">
             <div class="inv-card-head">
                 <h2 class="inv-card-title">Invoice Lists</h2>
-                @if ($selectedMonth ?? request('month'))
+                @if (request('month'))
                     <span
-                        class="inv-month-badge">{{ \Carbon\Carbon::parse(($selectedMonth ?? request('month')) . '-01')->format('F Y') }}</span>
+                        class="inv-month-badge">{{ \Carbon\Carbon::parse(request('month') . '-01')->format('F Y') }}</span>
                 @endif
             </div>
 
@@ -185,7 +184,8 @@
         <div class="modal-wrap" id="modal-wrap">
             <div class="modal-topbar">
                 <div class="modal-tabs">
-                    <span class="mtab mtab-active" id="tab-print">🖨 Portrait</span>
+                    <button class="mtab mtab-active" id="tab-detail" onclick="switchTab('detail')">Detail</button>
+                    <button class="mtab" id="tab-print" onclick="switchTab('print')">🖨 Portrait</button>
                 </div>
                 <button class="modal-x" onclick="closeModalDirect()">
                     <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -341,7 +341,7 @@
                 <table class="pinv-tbl">
                     <thead>
                         <tr>
-                            <th class="pinv-th">ថ្លៃបង់</th>
+                            <th class="pinv-th">បន្ទប់</th>
                             <th class="pinv-th pinv-th-center">ចាស់</th>
                             <th class="pinv-th pinv-th-center">ថ្មី</th>
                             <th class="pinv-th pinv-th-center">ប្រើ</th>
@@ -427,43 +427,39 @@
     {{-- JSZip CDN --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-    {{-- Flatpickr month picker --}}
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/monthSelect/index.min.js"></script>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/monthSelect/style.css">
-    <script>
-        flatpickr('#month-picker', {
-            altInputClass: 'inv-month-input',
-            plugins: [
-                new monthSelectPlugin({
-                    shorthand: true,
-                    dateFormat: 'Y-m',
-                    altFormat: 'F Y',
-                    theme: 'light',
-                }),
-            ],
-            defaultDate: '{{ $selectedMonth ?? request('month', now()->format('Y-m')) }}',
-            onChange: function () {
-                document.getElementById('inv-search-form').submit();
-            },
-        });
-    </script>
-
     <script>
         // ── Modal ──────────────────────────────────────────────
         let currentInvoiceId = null;
 
         function openModal(id) {
             currentInvoiceId = id;
-            const ptpl = document.getElementById('print-data-' + id);
-            if (!ptpl) return;
-            document.getElementById('modal-body').innerHTML = '';
-            document.getElementById('modal-body').style.display = 'none';
-            document.getElementById('modal-print').innerHTML = ptpl.innerHTML;
-            document.getElementById('modal-print').style.display = 'block';
+            const tpl = document.getElementById('modal-data-' + id);
+            if (!tpl) return;
+            document.getElementById('modal-body').innerHTML = tpl.innerHTML;
+            document.getElementById('modal-print').innerHTML = '';
+            document.getElementById('modal-print').style.display = 'none';
+            document.getElementById('modal-body').style.display = 'block';
+            document.getElementById('tab-detail').classList.add('mtab-active');
+            document.getElementById('tab-print').classList.remove('mtab-active');
             document.getElementById('modal-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+        }
+
+        function switchTab(tab) {
+            const id = currentInvoiceId;
+            if (tab === 'detail') {
+                document.getElementById('modal-body').style.display = 'block';
+                document.getElementById('modal-print').style.display = 'none';
+                document.getElementById('tab-detail').classList.add('mtab-active');
+                document.getElementById('tab-print').classList.remove('mtab-active');
+            } else {
+                const ptpl = document.getElementById('print-data-' + id);
+                if (ptpl) document.getElementById('modal-print').innerHTML = ptpl.innerHTML;
+                document.getElementById('modal-body').style.display = 'none';
+                document.getElementById('modal-print').style.display = 'block';
+                document.getElementById('tab-print').classList.add('mtab-active');
+                document.getElementById('tab-detail').classList.remove('mtab-active');
+            }
         }
 
         function closeModalDirect() {
@@ -851,7 +847,7 @@
             background: #fff;
             border: 1px solid #E5E7EB;
             border-radius: 14px;
-            padding: 12px 16px;
+            padding: 12px 14px 12px 20px;
             margin-bottom: 28px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, .05);
         }
@@ -862,9 +858,10 @@
         }
 
         .inv-search-inner {
-            display: inline-flex;
+            display: flex;
             align-items: center;
             gap: 8px;
+            flex: 1;
             color: #9CA3AF;
         }
 
@@ -873,77 +870,35 @@
             outline: none;
             background: transparent;
             font-size: 14px;
-            font-weight: 600;
             color: #374151;
             cursor: pointer;
-            width: 130px;
+            flex: 1;
         }
 
         .dark .inv-month-input {
             color: #D1D5DB;
         }
 
-        /* ── Flatpickr month picker theme ── */
-        .flatpickr-calendar {
-            border-radius: 14px !important;
-            border: 1px solid #E5E7EB !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .1) !important;
-            font-family: inherit !important;
+        .inv-month-input::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            opacity: .5;
         }
 
-        .flatpickr-calendar.arrowTop:before,
-        .flatpickr-calendar.arrowTop:after {
-            display: none !important;
+        .inv-btn-show {
+            background: #6366F1;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 9px 22px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .15s;
+            white-space: nowrap;
         }
 
-        .flatpickr-current-month {
-            font-size: 14px !important;
-        }
-
-        .flatpickr-monthSelect-months {
-            padding: 4px 10px 10px !important;
-        }
-
-        .flatpickr-monthSelect-month {
-            border-radius: 8px !important;
-        }
-
-        .flatpickr-monthSelect-month:hover {
-            background: #EEF2FF !important;
-        }
-
-        .flatpickr-monthSelect-month.selected,
-        .flatpickr-monthSelect-month.selected:hover {
-            background: #6366F1 !important;
-            color: #fff !important;
-        }
-
-        .numInputWrapper span.arrowUp:after {
-            border-bottom-color: #6366F1 !important;
-        }
-
-        .numInputWrapper span.arrowDown:after {
-            border-top-color: #6366F1 !important;
-        }
-
-        .dark .flatpickr-calendar {
-            background: #1E2130 !important;
-            border-color: #2E3347 !important;
-            color: #D1D5DB !important;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, .35) !important;
-        }
-
-        .dark .flatpickr-current-month,
-        .dark .flatpickr-current-month input.cur-year {
-            color: #D1D5DB !important;
-        }
-
-        .dark .flatpickr-monthSelect-month {
-            color: #D1D5DB !important;
-        }
-
-        .dark .flatpickr-monthSelect-month:hover {
-            background: #2E3347 !important;
+        .inv-btn-show:hover {
+            background: #4F46E5;
         }
 
         /* ── Card ── */

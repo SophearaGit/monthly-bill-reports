@@ -21,7 +21,7 @@ class RoomSeeder extends Seeder
                 'status' => 'rented',
             ];
 
-            if ($i == 22) {
+            if ($i == 21) {
                 $roomData['type'] = 'deluxe';
                 $roomData['rent_price'] = 100.00;
                 $roomData['status'] = 'rented';
