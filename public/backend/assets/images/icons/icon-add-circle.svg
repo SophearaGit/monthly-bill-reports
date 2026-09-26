@@ -1,5 +1,21 @@
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M7.99998 14.6666C11.6666 14.6666 14.6666 11.6666 14.6666 7.99998C14.6666 4.33331 11.6666 1.33331 7.99998 1.33331C4.33331 1.33331 1.33331 4.33331 1.33331 7.99998C1.33331 11.6666 4.33331 14.6666 7.99998 14.6666Z" stroke="#F1F1F1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M5.33331 8H10.6666" stroke="#F1F1F1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8 10.6666V5.33331" stroke="#F1F1F1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<!--
+tags: [add, create, new, circle, plus, round, circular, more, increase, positive]
+category: Shapes
+version: "1.0"
+unicode: "ea69"
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#7E7E8F"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" />
+  <path d="M9 12h6" />
+  <path d="M12 9v6" />
 </svg>

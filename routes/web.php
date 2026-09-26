@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Back\AdminDashboardController;
+use App\Http\Controllers\Back\FloorController;
 use App\Http\Controllers\Back\InvoiceController;
 use App\Http\Controllers\Back\MeterReadingController;
 use App\Http\Controllers\Back\RoomController;
@@ -12,19 +13,24 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::group(['middleware' => ['auth', 'verified']], function () {
+Route::group(['middleware' => ['auth:admin', 'verified']], function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'Dashboard'])->name('dashboard');
     Route::resource('/rooms', RoomController::class);
+    Route::post('/floors', [FloorController::class, 'store'])->name('floors.store');
+    Route::delete('/floors/{floor}', [FloorController::class, 'destroy'])->name('floors.destroy');
     Route::resource('/tenents', TenentController::class);
 
     Route::get('/meter-readings', [MeterReadingController::class, 'index'])->name('meter_readings.index');
     Route::post('/meter-readings', [MeterReadingController::class, 'store'])->name('meter_readings.store');
 
     Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.updateStatus');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__ . '/admin.php';
+require __DIR__ . '/tenant.php';
+

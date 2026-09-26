@@ -11,10 +11,13 @@ use Illuminate\Http\Request;
 
 class AdminDashboardController extends Controller
 {
-    public function Dashboard()
+    public function Dashboard(Request $request)
     {
-        $currentMonth = now()->format('Y-m');
-        $previousMonth = now()->subMonthNoOverflow()->format('Y-m');
+        $selectedMonth = $request->get('month', now()->format('Y-m'));
+        $anchor = Carbon::parse($selectedMonth . '-01');
+
+        $currentMonth = $anchor->format('Y-m');
+        $previousMonth = $anchor->copy()->subMonthNoOverflow()->format('Y-m');
 
         // ── Rooms & occupancy ─────────────────────────────────
         $rooms = Room::all();
@@ -47,7 +50,7 @@ class AdminDashboardController extends Controller
         $electricCostTotal = (float) $currentInvoices->sum('electric_used_price');
 
         // ── 6-month trend ─────────────────────────────────────
-        $trendMonths = collect(range(5, 0))->map(fn ($i) => now()->copy()->subMonthsNoOverflow($i)->format('Y-m'));
+        $trendMonths = collect(range(5, 0))->map(fn ($i) => $anchor->copy()->subMonthsNoOverflow($i)->format('Y-m'));
 
         $trendLabels = $trendMonths->map(fn ($m) => Carbon::parse($m . '-01')->format('M'))->values();
 
@@ -77,6 +80,7 @@ class AdminDashboardController extends Controller
 
         $data = [
             'pageTitle' => 'Admin | Dashboard',
+            'selectedMonth' => $currentMonth,
             'currentMonthLabel' => Carbon::parse($currentMonth . '-01')->format('F Y'),
 
             'totalRooms' => $totalRooms,

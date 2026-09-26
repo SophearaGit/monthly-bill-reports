@@ -13,4 +13,8 @@ class MeterReading extends Model
         'electric_reading',
     ];
 
+    public function room()
+    {
+        return $this->belongsTo(Room::class, 'room_id', 'id');
+    }
 }
