@@ -8,90 +8,51 @@
                 alt="Frox logo"></a>
         <div class="pt-[106px] lg:pt-[35px] pb-[18px]">
             <div class="sidemenu-item rounded-xl relative {{ Route::is('dashboard') ? 'active' : '' }}">
-                <input class="sr-only peer" type="checkbox" value="dashboard" name="sidemenu" id="dashboard">
-                <label
-                    class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
-                    for="dashboard">
-                    <div class="flex items-center gap-[10px]">
-                        <img src="/backend/assets/images/icons/icon-favorite-chart.svg" alt="side menu icon">
-                        <span class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
-                            <a href="{{ route('dashboard') }}">Dashboard</a>
-                        </span>
-                    </div>
-                </label>
+                <a href="{{ route('dashboard') }}"
+                    class="flex items-center gap-[10px] w-full py-[17px] px-[21px]">
+                    <img src="/backend/assets/images/icons/icon-favorite-chart.svg" alt="side menu icon">
+                    <span class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
+                        Dashboard
+                    </span>
+                </a>
             </div>
             <div class="sidemenu-item rounded-xl relative {{ Route::is('rooms.*') ? 'active' : '' }} ">
-                <input class="sr-only peer" type="checkbox" value="rooms" name="sidemenu" id="rooms">
-                <label
-                    class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
-                    for="rooms">
-                    <div class="flex items-center gap-[10px]"><img src="/backend/assets/images/icons/icon-products.svg"
-                            alt="side menu icon"><span
-                            class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
-                            <a href="{{ route('rooms.index') }}">
-                                Rooms
-                            </a>
-                        </span>
-                    </div>
-                </label>
+                <a href="{{ route('rooms.index') }}"
+                    class="flex items-center gap-[10px] w-full py-[17px] px-[21px]">
+                    <img src="/backend/assets/images/icons/icon-products.svg" alt="side menu icon">
+                    <span class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
+                        Rooms
+                    </span>
+                </a>
             </div>
             <div class="sidemenu-item rounded-xl relative {{ Route::is('tenents.*') ? 'active' : '' }} ">
-                <input class="sr-only peer" type="checkbox" value="tenents" name="sidemenu" id="tenents">
-                <label
-                    class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
-                    for="tenents">
-                    <div class="flex items-center gap-[10px]"><img src="/backend/assets/images/icons/icon-crm.svg"
-                            alt="side menu icon"><span
-                            class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
-                            <a href="{{ route('tenents.index') }}">
-                                Tenents
-                            </a>
-                        </span>
-                    </div>
-                </label>
+                <a href="{{ route('tenents.index') }}"
+                    class="flex items-center gap-[10px] w-full py-[17px] px-[21px]">
+                    <img src="/backend/assets/images/icons/icon-crm.svg" alt="side menu icon">
+                    <span class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
+                        Tenents
+                    </span>
+                </a>
             </div>
             <div class="sidemenu-item rounded-xl relative {{ Route::is('meter_readings.index') ? 'active' : '' }} ">
-                <input class="sr-only peer" type="checkbox" value="meter-readings" name="sidemenu" id="meter-readings">
-                <label
-                    class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
-                    for="meter-readings">
-                    <div class="flex items-center gap-[10px]"><img src="/backend/assets/images/icons/icon-analytics.svg"
-                            alt="side menu icon"><span
-                            class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
-                            <a href="{{ route('meter_readings.index') }}">
-                                Meter Readings
-                            </a>
-                        </span>
-                    </div>
-                </label>
+                <a href="{{ route('meter_readings.index') }}"
+                    class="flex items-center gap-[10px] w-full py-[17px] px-[21px]">
+                    <img src="/backend/assets/images/icons/icon-analytics.svg" alt="side menu icon">
+                    <span class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
+                        Meter Readings
+                    </span>
+                </a>
             </div>
             {{-- Invoice list --}}
             <div class="sidemenu-item rounded-xl relative {{ Route::is('invoices.*') ? 'active' : '' }} ">
-                <input class="sr-only peer" type="checkbox" value="invoices" name="sidemenu" id="invoices">
-                <label
-                    class="flex items-center justify-between w-full cursor-pointer py-[17px] px-[21px] focus:outline-none peer-checked:border-transparent active"
-                    for="invoices">
-                    <div class="flex items-center gap-[10px]"><img src="/backend/assets/images/icons/icon-wallet.svg"
-                            alt="side menu icon"><span
-                            class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
-                            <a href="{{ route('invoices.index') }}">
-                                Invoices
-                            </a>
-                        </span>
-                    </div>
-                </label>
+                <a href="{{ route('invoices.index') }}"
+                    class="flex items-center gap-[10px] w-full py-[17px] px-[21px]">
+                    <img src="/backend/assets/images/icons/icon-wallet.svg" alt="side menu icon">
+                    <span class="text-normal font-semibold text-gray-500 sidemenu-title dark:text-gray-dark-500">
+                        Invoices
+                    </span>
+                </a>
             </div>
-
-
-
-
-
-
-
-
-
-
-
 
             <div class="w-full bg-neutral h-[1px] mb-[35px] dark:bg-dark-neutral-border"></div>
         </div>

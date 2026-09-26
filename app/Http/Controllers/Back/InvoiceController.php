@@ -41,4 +41,21 @@ class InvoiceController extends Controller
 
         return view('backend.pages.invoices.show', $data);
     }
+
+    /**
+     * Toggle an invoice between paid/unpaid from the list's inline switch.
+     */
+    public function updateStatus(Request $request, Invoices $invoice)
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:paid,unpaid',
+        ]);
+
+        $invoice->update(['status' => $validated['status']]);
+
+        return response()->json([
+            'success' => true,
+            'status' => $invoice->status,
+        ]);
+    }
 }

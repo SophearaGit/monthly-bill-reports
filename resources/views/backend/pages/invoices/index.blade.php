@@ -80,6 +80,7 @@
                             <th colspan="4" class="th-elec">⚡ ថ្លៃអគ្គិសនី</th>
                             <th colspan="4" class="th-water">💧 ថ្លៃទឹក</th>
                             <th rowspan="2" class="th-base">សរុប</th>
+                            <th rowspan="2" class="th-base">Status</th>
                             <th rowspan="2" class="th-base"></th>
                         </tr>
                         <tr>
@@ -145,6 +146,19 @@
                                     <span class="dual-top total-hi">៛{{ number_format($totalRiel) }}</span>
                                     <span class="dual-bot">${{ number_format($invoice->total_amount, 2) }}</span>
                                 </td>
+                                {{-- status --}}
+                                <td class="tc">
+                                    <label class="status-switch" title="Toggle paid / unpaid">
+                                        <input type="checkbox" class="status-switch-input"
+                                            data-invoice-id="{{ $invoice->id }}"
+                                            {{ $invoice->status === 'paid' ? 'checked' : '' }}
+                                            onchange="toggleInvoiceStatus(this)">
+                                        <span class="status-switch-track">
+                                            <span class="status-switch-thumb"></span>
+                                        </span>
+                                        <span class="status-switch-label">{{ $invoice->status === 'paid' ? 'Paid' : 'Unpaid' }}</span>
+                                    </label>
+                                </td>
                                 {{-- action --}}
                                 <td class="tc">
                                     <button class="btn-view" onclick="openModal({{ $invoice->id }})" title="View">
@@ -158,7 +172,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="16" class="tc-empty">
+                                <td colspan="17" class="tc-empty">
                                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
                                         stroke="currentColor" stroke-width="1.5">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
@@ -204,7 +218,7 @@
     @foreach ($invoices as $invoice)
         @php
             $ex = 4100;
-            $rentRiel = $invoice->room->rent_price * 4150;
+            $rentRiel = $invoice->room->rent_price * $ex;
             $elecRiel = $invoice->electric_used_price * $ex;
             $waterRiel = $invoice->water_used_price * $ex;
             $totalRiel = $invoice->total_amount * $ex;
@@ -513,6 +527,64 @@
             onRowCheckChange();
         }
 
+        // ── Paid / unpaid switch ────────────────────────────────
+        function showInvoiceToast(message, isError) {
+            const el = document.createElement('div');
+            el.textContent = message;
+            el.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;' +
+                'padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;' +
+                'box-shadow:0 10px 30px rgba(0,0,0,.15);transition:opacity .25s ease,transform .25s ease;' +
+                'opacity:0;transform:translateX(24px);' +
+                (isError
+                    ? 'background:#FDEDEC;color:#E23738;border:1px solid #E23738;'
+                    : 'background:#E9FAF0;color:#50D1B2;border:1px solid #50D1B2;');
+            document.body.appendChild(el);
+            requestAnimationFrame(() => {
+                el.style.opacity = '1';
+                el.style.transform = 'translateX(0)';
+            });
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateX(24px)';
+                setTimeout(() => el.remove(), 250);
+            }, 2500);
+        }
+
+        function toggleInvoiceStatus(checkbox) {
+            const id = checkbox.dataset.invoiceId;
+            const label = checkbox.closest('.status-switch').querySelector('.status-switch-label');
+            const newStatus = checkbox.checked ? 'paid' : 'unpaid';
+            const previousChecked = !checkbox.checked;
+
+            checkbox.disabled = true;
+            label.textContent = newStatus === 'paid' ? 'Paid' : 'Unpaid';
+
+            fetch(`/invoices/${id}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({ status: newStatus }),
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error('Request failed');
+                    return res.json();
+                })
+                .then(() => {
+                    showInvoiceToast(`Marked as ${newStatus}.`, false);
+                })
+                .catch(() => {
+                    checkbox.checked = previousChecked;
+                    label.textContent = previousChecked ? 'Paid' : 'Unpaid';
+                    showInvoiceToast('Could not update status. Try again.', true);
+                })
+                .finally(() => {
+                    checkbox.disabled = false;
+                });
+        }
+
         function deselectAll() {
             document.querySelectorAll('.row-cb').forEach(cb => cb.checked = false);
             document.getElementById('select-all').checked = false;
@@ -664,13 +736,13 @@
         }
 
         .cb-wrap input:checked+.cb-box {
-            background: #6366F1;
-            border-color: #6366F1;
+            background: #7364DB;
+            border-color: #7364DB;
         }
 
         .cb-wrap input:indeterminate+.cb-box {
-            background: #6366F1;
-            border-color: #6366F1;
+            background: #7364DB;
+            border-color: #7364DB;
         }
 
         .cb-wrap input:checked+.cb-box::after {
@@ -699,7 +771,68 @@
         }
 
         .dark .inv-tr:has(.row-cb:checked) td {
-            background: #1E1B4B !important;
+            background: #241F4A !important;
+        }
+
+        /* ── Paid / unpaid switch ───────────────────────────────── */
+        .status-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .status-switch-input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .status-switch-track {
+            position: relative;
+            width: 36px;
+            height: 20px;
+            border-radius: 999px;
+            background: #E23738;
+            flex-shrink: 0;
+            transition: background .15s ease;
+        }
+
+        .status-switch-thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, .25);
+            transition: transform .15s ease;
+        }
+
+        .status-switch-input:checked+.status-switch-track {
+            background: #50D1B2;
+        }
+
+        .status-switch-input:checked+.status-switch-track .status-switch-thumb {
+            transform: translateX(16px);
+        }
+
+        .status-switch-input:disabled+.status-switch-track {
+            opacity: .5;
+        }
+
+        .status-switch-label {
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 40px;
+            color: #E23738;
+        }
+
+        .status-switch-input:checked~.status-switch-label {
+            color: #50D1B2;
         }
 
         /* ── Bulk toolbar ───────────────────────────────────────── */
@@ -729,7 +862,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: #EEF2FF;
+            background: #F1EEFC;
             border: 1px solid #C7D2FE;
             border-radius: 12px;
             padding: 10px 16px;
@@ -737,8 +870,8 @@
         }
 
         .dark .bulk-toolbar-inner {
-            background: #1E1B4B;
-            border-color: #3730A3;
+            background: #241F4A;
+            border-color: #4A3F99;
         }
 
         .bulk-info {
@@ -747,17 +880,17 @@
             gap: 8px;
             font-size: 13px;
             font-weight: 600;
-            color: #4338CA;
+            color: #5B4BC7;
         }
 
         .dark .bulk-info {
-            color: #A5B4FC;
+            color: #C3B8F5;
         }
 
         .bulk-check-icon {
             width: 22px;
             height: 22px;
-            background: #6366F1;
+            background: #7364DB;
             border-radius: 6px;
             display: flex;
             align-items: center;
@@ -789,7 +922,7 @@
 
         .dark .bulk-deselect {
             background: #252A3A;
-            border-color: #3730A3;
+            border-color: #4A3F99;
             color: #9CA3AF;
         }
 
@@ -809,7 +942,7 @@
             padding: 7px 16px;
             border-radius: 7px;
             border: none;
-            background: #6366F1;
+            background: #7364DB;
             color: #fff;
             font-size: 12px;
             font-weight: 700;
@@ -819,7 +952,7 @@
         }
 
         .bulk-download:hover {
-            background: #4F46E5;
+            background: #5F4FC4;
         }
 
         .bulk-download:disabled {
@@ -909,21 +1042,21 @@
         }
 
         .flatpickr-monthSelect-month:hover {
-            background: #EEF2FF !important;
+            background: #F1EEFC !important;
         }
 
         .flatpickr-monthSelect-month.selected,
         .flatpickr-monthSelect-month.selected:hover {
-            background: #6366F1 !important;
+            background: #7364DB !important;
             color: #fff !important;
         }
 
         .numInputWrapper span.arrowUp:after {
-            border-bottom-color: #6366F1 !important;
+            border-bottom-color: #7364DB !important;
         }
 
         .numInputWrapper span.arrowDown:after {
-            border-top-color: #6366F1 !important;
+            border-top-color: #7364DB !important;
         }
 
         .dark .flatpickr-calendar {
@@ -979,8 +1112,8 @@
         }
 
         .inv-month-badge {
-            background: #EEF2FF;
-            color: #4338CA;
+            background: #F1EEFC;
+            color: #5B4BC7;
             font-size: 11px;
             font-weight: 700;
             padding: 3px 10px;
@@ -989,7 +1122,7 @@
 
         .dark .inv-month-badge {
             background: #312E81;
-            color: #A5B4FC;
+            color: #C3B8F5;
         }
 
         /* ── Table ── */
@@ -1122,8 +1255,8 @@
 
         .room-pill {
             display: inline-block;
-            background: #EEF2FF;
-            color: #4338CA;
+            background: #F1EEFC;
+            color: #5B4BC7;
             font-size: 11px;
             font-weight: 700;
             padding: 2px 9px;
@@ -1132,7 +1265,7 @@
 
         .dark .room-pill {
             background: #312E81;
-            color: #A5B4FC;
+            color: #C3B8F5;
         }
 
         .dual-top {
@@ -1154,7 +1287,7 @@
         }
 
         .total-hi {
-            color: #4F46E5 !important;
+            color: #5F4FC4 !important;
         }
 
         .dark .total-hi {
@@ -1176,9 +1309,9 @@
         }
 
         .btn-view:hover {
-            border-color: #6366F1;
-            color: #6366F1;
-            background: #EEF2FF;
+            border-color: #7364DB;
+            color: #7364DB;
+            background: #F1EEFC;
         }
 
         .dark .btn-view {
@@ -1190,7 +1323,7 @@
         .dark .btn-view:hover {
             border-color: #818CF8;
             color: #818CF8;
-            background: #1E1B4B;
+            background: #241F4A;
         }
 
         .tc-empty {
@@ -1296,7 +1429,7 @@
         }
 
         .dark .md-title-block {
-            background: #1E1B4B;
+            background: #241F4A;
         }
 
         .md-title {
@@ -1312,7 +1445,7 @@
         }
 
         .md-title strong {
-            color: #6366F1;
+            color: #7364DB;
         }
 
         .dark .md-title strong {
@@ -1434,7 +1567,7 @@
         }
 
         .md-lbl-total {
-            color: #4F46E5;
+            color: #5F4FC4;
             font-size: 14px;
         }
 
@@ -1459,8 +1592,8 @@
 
         .md-amt {
             text-align: right;
-            background: #EEF2FF;
-            color: #4338CA;
+            background: #F1EEFC;
+            color: #5B4BC7;
             border-radius: 8px;
             padding: 7px 12px;
             white-space: nowrap;
@@ -1468,8 +1601,8 @@
         }
 
         .dark .md-amt {
-            background: #1E1B4B;
-            color: #A5B4FC;
+            background: #241F4A;
+            color: #C3B8F5;
         }
 
         .md-amt span {
@@ -1486,13 +1619,13 @@
         }
 
         .md-amt-total {
-            background: #4F46E5;
+            background: #5F4FC4;
             color: #fff;
         }
 
         .dark .md-amt-total {
-            background: #4338CA;
-            color: #EEF2FF;
+            background: #5B4BC7;
+            color: #F1EEFC;
         }
 
         .md-divider {
@@ -1544,7 +1677,7 @@
 
         .mtab-active {
             background: #fff;
-            color: #4F46E5;
+            color: #5F4FC4;
             box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
         }
 
@@ -1790,7 +1923,7 @@
         }
 
         .dark .pinv-riel-row {
-            background: #1E1B4B;
+            background: #241F4A;
         }
 
         .pinv-riel-lbl {
