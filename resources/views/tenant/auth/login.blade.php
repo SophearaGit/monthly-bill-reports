@@ -1,6 +1,12 @@
 @extends('backend.layouts.auth-layout')
 @section('pageTitle', 'Tenant Sign In')
 @section('content')
+    <div class="text-left mb-[10px]">
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-1 text-xs text-[#8083A3] hover:text-color-brands">
+            <img src="{{ asset('/backend/assets/images/icons/icon-arrow-left.svg') }}" alt="" class="w-3 h-3">
+            Back
+        </a>
+    </div>
     <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">Tenant sign in</h3>
     <p class="text-sm text-gray-500 mb-[30px] dark:text-gray-dark-500">View your room, meter readings, and invoices.</p>
 

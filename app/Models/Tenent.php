@@ -45,6 +45,21 @@ class Tenent extends Authenticatable
         return $this->hasMany(Invoices::class, 'tenant_id', 'id');
     }
 
+    public function socialLinks()
+    {
+        return $this->hasMany(TenantSocialLink::class, 'tenant_id', 'id');
+    }
+
+    public function transportations()
+    {
+        return $this->hasMany(TenantTransportation::class, 'tenant_id', 'id');
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(TenantDocument::class, 'tenant_id', 'id');
+    }
+
     /**
      * A tenant only has portal access once an admin has set a password
      * for them.

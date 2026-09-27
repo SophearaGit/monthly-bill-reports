@@ -130,31 +130,16 @@
                                             src="/backend/assets/images/icons/icon-3-dots.svg" alt="3 dots icon">
                                     </label>
                                     <ul class="dropdown-content" tabindex="0">
-                                        <div
-                                            class="relative menu rounded-box dropdown-shadow min-w-[126px] bg-neutral-bg mt-[10px] pt-[14px] pb-[7px] px-4 border border-neutral-border dark:text-gray-dark-500 dark:border-dark-neutral-border dark:bg-dark-neutral-bg">
-                                            <div
-                                                class="border-solid border-b-8 border-x-transparent border-x-8 border-t-0 absolute w-[14px] top-[-7px] border-b-transparent right-[18px]">
-                                            </div>
-                                            <li class="text-normal mb-[7px]">
-                                                <label for="edit-room-modal-{{ $room->id }}"
-                                                    class="flex items-center bg-transparent p-0 gap-[7px] cursor-pointer">
-                                                    <span
-                                                        class="text-gray-500 text-[11px] leading-4 hover:text-gray-700">Edit</span>
-                                                </label>
-                                            </li>
-                                            <div class="w-full bg-neutral h-[1px] my-[7px] dark:bg-dark-neutral-border">
-                                            </div>
-                                            <li class="text-normal mb-[7px]">
-                                                <form method="POST" action="{{ route('rooms.destroy', $room) }}"
-                                                    onsubmit="return confirm('Delete room {{ $room->number }}?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit"
-                                                        class="flex items-center bg-transparent p-0 gap-[7px]">
-                                                        <span class="text-red text-[11px] leading-4">Delete</span>
-                                                    </button>
-                                                </form>
-                                            </li>
+                                        <div class="row-menu">
+                                            <div class="row-menu-arrow"></div>
+                                            <label for="edit-room-modal-{{ $room->id }}" class="row-menu-item">Edit</label>
+                                            <div class="row-menu-divider"></div>
+                                            <form method="POST" action="{{ route('rooms.destroy', $room) }}"
+                                                onsubmit="return confirm('Delete room {{ $room->number }}?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="row-menu-item row-menu-item-danger">Delete</button>
+                                            </form>
                                         </div>
                                     </ul>
                                 </div>
@@ -438,4 +423,81 @@
             </form>
         </div>
     </div>
+    <style>
+        /* Plain CSS on purpose: tailwind.min.css here is a static,
+           pre-purged build, so the daisyUI-ish .menu/.rounded-box
+           utility classes it relied on could inflate unpredictably.
+           Custom classes below give this dropdown fixed, compact
+           spacing regardless of that. */
+        .row-menu {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            min-width: 126px;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background: var(--neutral-bg, #fff);
+            border: 1px solid rgba(128, 131, 163, .2);
+            border-radius: 12px;
+            box-shadow: 0 40px 120px 0 rgba(0, 0, 0, .122);
+        }
+
+        .dark .row-menu {
+            background: #1B1B29;
+            border-color: rgba(255, 255, 255, .08);
+        }
+
+        .row-menu-arrow {
+            position: absolute;
+            top: -7px;
+            right: 18px;
+            width: 14px;
+            height: 7px;
+            border-left: 7px solid transparent;
+            border-right: 7px solid transparent;
+            border-bottom: 7px solid var(--neutral-bg, #fff);
+        }
+
+        .dark .row-menu-arrow {
+            border-bottom-color: #1B1B29;
+        }
+
+        .row-menu-item {
+            display: block;
+            background: transparent;
+            border: none;
+            padding: 5px 0;
+            margin: 0;
+            font-size: 11px;
+            line-height: 16px;
+            color: #8083A3;
+            cursor: pointer;
+            text-align: left;
+            width: 100%;
+        }
+
+        .row-menu-item:hover {
+            color: #171725;
+        }
+
+        .dark .row-menu-item:hover {
+            color: #E0E0E0;
+        }
+
+        .row-menu-item-danger,
+        .row-menu-item-danger:hover {
+            color: #E23738;
+        }
+
+        .row-menu-divider {
+            width: 100%;
+            height: 1px;
+            background: rgba(128, 131, 163, .2);
+            margin: 5px 0;
+        }
+
+        .dark .row-menu-divider {
+            background: rgba(255, 255, 255, .08);
+        }
+    </style>
 @endsection
