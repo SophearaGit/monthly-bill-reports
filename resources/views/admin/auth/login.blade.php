@@ -1,6 +1,12 @@
 @extends('backend.layouts.auth-layout')
 @section('pageTitle', 'Admin Sign In')
 @section('content')
+    <div class="text-left mb-[10px]">
+        <a href="{{ url('/') }}" class="inline-flex items-center gap-1 text-xs text-[#8083A3] hover:text-color-brands">
+            <img src="{{ asset('/backend/assets/images/icons/icon-arrow-left.svg') }}" alt="" class="w-3 h-3">
+            Back
+        </a>
+    </div>
     <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">Admin sign in</h3>
     <p class="text-sm text-gray-500 mb-[30px] dark:text-gray-dark-500">Sign in to manage your rooms and reports.</p>
 
@@ -58,12 +64,8 @@
         </div>
 
         <button type="submit"
-            class="btn auth-submit-btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg mb-[20px] py-[14px] dark:border-dark-neutral-bg">
+            class="btn auth-submit-btn normal-case h-fit min-h-fit transition-all duration-300 border-4 w-full border-neutral-bg py-[14px] dark:border-dark-neutral-bg">
             Login
         </button>
-
-        <p class="text-sm text-gray-1100 dark:text-gray-dark-1100">Need an admin account?
-            <a class="text-color-brands" href="{{ route('admin.register') }}">Sign up</a>
-        </p>
     </form>
 @endsection

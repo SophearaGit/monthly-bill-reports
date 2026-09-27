@@ -54,12 +54,11 @@
                 Overview for
                 <span class="font-semibold text-gray-1100 dark:text-gray-dark-1100">{{ $currentMonthLabel }}</span>
             </p>
-            <form method="GET" action="{{ route('dashboard') }}"
-                class="flex items-center gap-2 rounded-lg border border-neutral dark:border-dark-neutral-border px-3 py-2">
+            <form method="GET" action="{{ route('dashboard') }}" id="dash-month-form"
+                class="dash-month-box">
                 <img src="/backend/assets/images/icons/icon-calendar-1.svg" alt="" class="w-4 h-4">
-                <input type="month" name="month" value="{{ $selectedMonth }}"
-                    class="bg-transparent text-sm text-gray-1100 dark:text-gray-dark-1100 focus:outline-none"
-                    onchange="this.form.submit()">
+                <input type="text" id="dash-month-picker" name="month" value="{{ $selectedMonth }}"
+                    class="dash-month-input" readonly>
             </form>
         </div>
 
@@ -421,6 +420,118 @@
                     },
                 });
             }
+        });
+    </script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/monthSelect/index.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/plugins/monthSelect/style.css">
+    <style>
+        .dash-month-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .dark .dash-month-box {
+            border-color: #313442;
+        }
+
+        .dash-month-input {
+            border: none;
+            outline: none;
+            background: transparent;
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            cursor: pointer;
+            width: 110px;
+        }
+
+        .dark .dash-month-input {
+            color: #D1D5DB;
+        }
+
+        .flatpickr-calendar {
+            border-radius: 14px !important;
+            border: 1px solid #E5E7EB !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .1) !important;
+            font-family: inherit !important;
+        }
+
+        .flatpickr-calendar.arrowTop:before,
+        .flatpickr-calendar.arrowTop:after {
+            display: none !important;
+        }
+
+        .flatpickr-current-month {
+            font-size: 14px !important;
+        }
+
+        .flatpickr-monthSelect-months {
+            padding: 4px 10px 10px !important;
+        }
+
+        .flatpickr-monthSelect-month {
+            border-radius: 8px !important;
+        }
+
+        .flatpickr-monthSelect-month:hover {
+            background: #F1EEFC !important;
+        }
+
+        .flatpickr-monthSelect-month.selected,
+        .flatpickr-monthSelect-month.selected:hover {
+            background: #7364DB !important;
+            color: #fff !important;
+        }
+
+        .numInputWrapper span.arrowUp:after {
+            border-bottom-color: #7364DB !important;
+        }
+
+        .numInputWrapper span.arrowDown:after {
+            border-top-color: #7364DB !important;
+        }
+
+        .dark .flatpickr-calendar {
+            background: #1E2130 !important;
+            border-color: #2E3347 !important;
+            color: #D1D5DB !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .35) !important;
+        }
+
+        .dark .flatpickr-current-month,
+        .dark .flatpickr-current-month input.cur-year {
+            color: #D1D5DB !important;
+        }
+
+        .dark .flatpickr-monthSelect-month {
+            color: #D1D5DB !important;
+        }
+
+        .dark .flatpickr-monthSelect-month:hover {
+            background: #2E3347 !important;
+        }
+    </style>
+    <script>
+        flatpickr('#dash-month-picker', {
+            altInputClass: 'dash-month-input',
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true,
+                    dateFormat: 'Y-m',
+                    altFormat: 'F Y',
+                    theme: 'light',
+                }),
+            ],
+            defaultDate: '{{ $selectedMonth }}',
+            onChange: function () {
+                document.getElementById('dash-month-form').submit();
+            },
         });
     </script>
 @endsection
