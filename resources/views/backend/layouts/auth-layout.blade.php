@@ -6,8 +6,8 @@
     <title>@yield('pageTitle')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <link rel="icon" href="{{ asset('/backend/assets/images/icons/icon-favicon.svg') }}" type="image/x-icon"
-        sizes="16x16">
+    <link rel="icon" href="{{ asset('/backend/assets/images/icons/icon-favicon.png') }}" type="image/png"
+        sizes="256x256">
     <link rel="stylesheet" href="{{ asset('/backend/assets/styles/tailwind.min.css?v=5.0') }}">
     <link rel="stylesheet" href="{{ asset('/backend/assets/styles/style.min.css?v=5.0') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -43,7 +43,7 @@
 <body class="w-screen relative overflow-x-hidden min-h-screen bg-gray-100 dark:bg-[#000] flex items-center justify-center p-4">
     <div class="w-full max-w-[440px]">
         <a href="{{ url('/') }}" class="flex justify-center mb-8">
-            <img src="{{ asset('/backend/assets/images/icons/icon-logo.svg') }}" alt="logo" class="h-8">
+            <img src="{{ asset('/backend/assets/images/icons/icon-logo.png') }}" alt="Anita Rent logo" class="h-12">
         </a>
         <div class="rounded-2xl bg-white p-10 text-center dark:bg-[#1F2128]">
             @yield('content')

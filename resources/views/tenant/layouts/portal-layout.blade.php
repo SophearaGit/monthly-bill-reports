@@ -6,8 +6,8 @@
     <title>@yield('pageTitle')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <link rel="icon" href="{{ asset('/backend/assets/images/icons/icon-favicon.svg') }}" type="image/x-icon"
-        sizes="16x16">
+    <link rel="icon" href="{{ asset('/backend/assets/images/icons/icon-favicon.png') }}" type="image/png"
+        sizes="256x256">
     <link rel="stylesheet" href="{{ asset('/backend/assets/styles/tailwind.min.css?v=5.0') }}">
     <link rel="stylesheet" href="{{ asset('/backend/assets/styles/style.min.css?v=5.0') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
     <header
         class="flex items-center justify-between bg-neutral-bg p-5 md:py-6 md:px-[38px] dark:bg-dark-neutral-bg border-b border-neutral dark:border-dark-neutral-border">
         <div class="flex items-center gap-3">
-            <img src="{{ asset('/backend/assets/images/icons/icon-logo.svg') }}" alt="logo" class="h-7">
+            <img src="{{ asset('/backend/assets/images/icons/icon-logo.png') }}" alt="Anita Rent logo" style="height:40px;width:auto;">
             <span class="text-gray-1100 dark:text-gray-dark-1100 font-semibold">Tenant Portal</span>
         </div>
         <div class="flex items-center gap-4">

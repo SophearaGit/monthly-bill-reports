@@ -39,6 +39,21 @@
                         </svg>
                         Clear
                     </button>
+                    <button class="bulk-mark bulk-mark-paid" id="bulk-mark-paid-btn" onclick="bulkMarkStatus('paid')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        Mark Paid
+                    </button>
+                    <button class="bulk-mark bulk-mark-unpaid" id="bulk-mark-unpaid-btn" onclick="bulkMarkStatus('unpaid')">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.5">
+                            <circle cx="12" cy="12" r="9" />
+                            <line x1="9" y1="12" x2="15" y2="12" />
+                        </svg>
+                        Mark Unpaid
+                    </button>
                     <button class="bulk-download" id="bulk-download-btn" onclick="downloadSelectedAsZip()">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2.5">
@@ -440,6 +455,7 @@
 
     {{-- JSZip CDN --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     {{-- Flatpickr month picker --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
@@ -556,33 +572,112 @@
             const newStatus = checkbox.checked ? 'paid' : 'unpaid';
             const previousChecked = !checkbox.checked;
 
-            checkbox.disabled = true;
-            label.textContent = newStatus === 'paid' ? 'Paid' : 'Unpaid';
-
-            fetch(`/invoices/${id}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({ status: newStatus }),
-            })
-                .then(res => {
-                    if (!res.ok) throw new Error('Request failed');
-                    return res.json();
-                })
-                .then(() => {
-                    showInvoiceToast(`Marked as ${newStatus}.`, false);
-                })
-                .catch(() => {
+            // The checkbox has already flipped visually by the time onchange
+            // fires, so on "Cancel" we flip it straight back and stop.
+            Swal.fire({
+                title: `Mark as ${newStatus}?`,
+                text: `This invoice will be marked as ${newStatus}.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, confirm',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#7364DB',
+                cancelButtonColor: '#8083A3',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) {
                     checkbox.checked = previousChecked;
-                    label.textContent = previousChecked ? 'Paid' : 'Unpaid';
-                    showInvoiceToast('Could not update status. Try again.', true);
+                    return;
+                }
+
+                checkbox.disabled = true;
+                label.textContent = newStatus === 'paid' ? 'Paid' : 'Unpaid';
+
+                fetch(`/invoices/${id}/status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ status: newStatus }),
                 })
-                .finally(() => {
-                    checkbox.disabled = false;
-                });
+                    .then(res => {
+                        if (!res.ok) throw new Error('Request failed');
+                        return res.json();
+                    })
+                    .then(() => {
+                        showInvoiceToast(`Marked as ${newStatus}.`, false);
+                    })
+                    .catch(() => {
+                        checkbox.checked = previousChecked;
+                        label.textContent = previousChecked ? 'Paid' : 'Unpaid';
+                        showInvoiceToast('Could not update status. Try again.', true);
+                    })
+                    .finally(() => {
+                        checkbox.disabled = false;
+                    });
+            });
+        }
+
+        // ── Bulk mark paid / unpaid ─────────────────────────────
+        function bulkMarkStatus(status) {
+            const checked = getChecked();
+            if (!checked.length) return;
+
+            const label = status === 'paid' ? 'Paid' : 'Unpaid';
+
+            Swal.fire({
+                title: `Mark ${checked.length} invoice(s) as ${label}?`,
+                text: `This will update the status of all selected invoices.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, confirm',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#7364DB',
+                cancelButtonColor: '#8083A3',
+                reverseButtons: true,
+            }).then((result) => {
+                if (!result.isConfirmed) return;
+
+                const ids = checked.map(cb => cb.value);
+                const paidBtn = document.getElementById('bulk-mark-paid-btn');
+                const unpaidBtn = document.getElementById('bulk-mark-unpaid-btn');
+                paidBtn.disabled = true;
+                unpaidBtn.disabled = true;
+
+                fetch(`/invoices/bulk-status`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ ids, status }),
+                })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Request failed');
+                        return res.json();
+                    })
+                    .then(() => {
+                        ids.forEach(id => {
+                            const row = document.querySelector(`.inv-tr[data-id="${id}"]`);
+                            if (!row) return;
+                            const input = row.querySelector('.status-switch-input');
+                            const rowLabel = row.querySelector('.status-switch-label');
+                            if (input) input.checked = status === 'paid';
+                            if (rowLabel) rowLabel.textContent = label;
+                        });
+                        showInvoiceToast(`${ids.length} invoice(s) marked as ${status}.`, false);
+                    })
+                    .catch(() => {
+                        showInvoiceToast('Could not update selected invoices. Try again.', true);
+                    })
+                    .finally(() => {
+                        paidBtn.disabled = false;
+                        unpaidBtn.disabled = false;
+                    });
+            });
         }
 
         function deselectAll() {
@@ -958,6 +1053,77 @@
         .bulk-download:disabled {
             opacity: .7;
             cursor: not-allowed;
+        }
+
+        .bulk-mark {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            border-radius: 7px;
+            border: 1px solid transparent;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background .15s, opacity .15s;
+            white-space: nowrap;
+        }
+
+        .bulk-mark:disabled {
+            opacity: .6;
+            cursor: not-allowed;
+        }
+
+        .bulk-mark-paid {
+            background: rgba(80, 209, 178, .14);
+            color: #50D1B2;
+            border-color: rgba(80, 209, 178, .3);
+        }
+
+        .bulk-mark-paid:hover:not(:disabled) {
+            background: rgba(80, 209, 178, .24);
+        }
+
+        .bulk-mark-unpaid {
+            background: rgba(226, 55, 56, .1);
+            color: #E23738;
+            border-color: rgba(226, 55, 56, .28);
+        }
+
+        .bulk-mark-unpaid:hover:not(:disabled) {
+            background: rgba(226, 55, 56, .18);
+        }
+
+
+        /* SweetAlert2 confirm/cancel buttons: this template's CSS reset styles
+           plain button elements with higher specificity than SweetAlert2's
+           own :where()-scoped defaults, which was stripping the buttons down
+           to invisible (no background, no padding, no border). Force them. */
+        .swal2-actions {
+            display: flex !important;
+            gap: 10px;
+        }
+
+        .swal2-styled {
+            display: inline-block !important;
+            min-width: 90px;
+            padding: 10px 22px !important;
+            border: none !important;
+            border-radius: 7px !important;
+            font-size: 14px !important;
+            font-weight: 700 !important;
+            line-height: 1.2;
+            color: #fff !important;
+            cursor: pointer !important;
+            box-shadow: none !important;
+        }
+
+        .swal2-styled.swal2-confirm {
+            background-color: #7364DB !important;
+        }
+
+        .swal2-styled.swal2-cancel {
+            background-color: #8083A3 !important;
         }
 
         /* Spinner animation */

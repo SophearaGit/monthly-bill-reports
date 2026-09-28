@@ -10,8 +10,8 @@
     <meta name="keywords" content="">
     <meta name="robots" content="index, follow">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0">
-    <link rel="icon" href="{{ asset('/backend/assets/images/icons/icon-favicon.svg') }}" type="image/x-icon"
-        sizes="16x16">
+    <link rel="icon" href="{{ asset('/backend/assets/images/icons/icon-favicon.png') }}" type="image/png"
+        sizes="256x256">
     <link rel="stylesheet" href="{{ asset('/backend/assets/styles/tailwind.min.css?v=5.0') }}">
     <link rel="stylesheet" href="{{ asset('/backend/assets/styles/style.min.css?v=5.0') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -169,7 +169,7 @@
                     class="flex items-center justify-between text-desc text-gray-400 flex-wrap gap-5 dark:text-gray-dark-400">
                     <div class="flex items-center gap-2 flex-wrap">
                         <p> <span>© 2022 -</span><span
-                                class="text-color-brands">&nbsp;Frox</span><span>&nbsp;Dashboard</span></p>
+                                class="text-color-brands">&nbsp;Anita Rent</span><span>&nbsp;Dashboard</span></p>
                         <div class="bg-color-brands rounded-full hidden w-[2px] h-[2px] md:block"></div>
                         <p> <span>Made by</span><a class="text-color-brands" href="https://alithemes.com"
                                 target="_blank">&nbsp;AliThemes</a></p>
