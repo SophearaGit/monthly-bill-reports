@@ -34,6 +34,8 @@ Route::group(['middleware' => ['auth:admin', 'verified']], function () {
 
     Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
     Route::patch('/invoices/{invoice}/status', [InvoiceController::class, 'updateStatus'])->name('invoices.updateStatus');
+    Route::patch('/invoices/bulk-status', [InvoiceController::class, 'bulkUpdateStatus'])->name('invoices.bulkUpdateStatus');
+    Route::get('/invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])->name('invoices.pdf');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

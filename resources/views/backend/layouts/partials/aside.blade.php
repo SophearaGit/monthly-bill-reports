@@ -3,9 +3,9 @@
     <div class="absolute p-2 border-neutral right-0 border bg-white rounded-full cursor-pointer duration-300 translate-x-1/2 hover:opacity-75 dark:bg-dark-neutral-bg dark:border-dark-neutral-border"
         id="sidebar-btn"><img src="/backend/assets/images/icons/icon-arrow-left.svg" alt="left chevron icon">
     </div>
-    <div><a class="mb-10" href="index.html"> <img class="logo-maximize" src="/backend/assets/images/icons/icon-logo.svg"
-                alt="Frox logo"><img class="logo-minimize ml-[10px]" src="/backend/assets/images/icons/icon-favicon.svg"
-                alt="Frox logo"></a>
+    <div><a class="mb-10" href="index.html"> <img class="logo-maximize" src="/backend/assets/images/icons/icon-logo.png"
+                alt="Anita Rent logo" style="height:42px;width:auto;"><img class="logo-minimize ml-[10px]" src="/backend/assets/images/icons/icon-favicon.png"
+                alt="Anita Rent logo" style="height:34px;width:auto;"></a>
         <div class="pt-[106px] lg:pt-[35px] pb-[18px]">
             <div class="sidemenu-item rounded-xl relative {{ Route::is('dashboard') ? 'active' : '' }}">
                 <a href="{{ route('dashboard') }}"

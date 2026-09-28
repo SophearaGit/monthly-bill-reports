@@ -1,5 +1,5 @@
 @extends('backend.layouts.auth-layout')
-@section('pageTitle', 'Frox — Sign In')
+@section('pageTitle', 'Anita Rent — Sign In')
 @section('content')
     <h3 class="font-bold text-2xl text-gray-1100 capitalize mb-[5px] dark:text-gray-dark-1100">Welcome</h3>
     <p class="text-sm text-gray-500 mb-[30px] dark:text-gray-dark-500">Sign in to continue.</p>
