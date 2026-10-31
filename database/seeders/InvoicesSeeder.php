@@ -61,7 +61,8 @@ class InvoicesSeeder extends Seeder
                         'electric_cost' => $electricUsedPrice,
                         'rent_cost' => $room->rent_price,
                         'total_amount' => round($room->rent_price + $waterUsedPrice + $electricUsedPrice, 2),
-                        'status' => 'unpaid',
+                        // Paid when the room has a meter reading, unpaid when it has none.
+                        'status' => ($waterNew > 0 || $electricNew > 0) ? 'paid' : 'unpaid',
                     ],
                 );
 
