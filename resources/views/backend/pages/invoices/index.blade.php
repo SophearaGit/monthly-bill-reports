@@ -75,6 +75,9 @@
                     <span
                         class="inv-month-badge">{{ \Carbon\Carbon::parse(($selectedMonth ?? request('month')) . '-01')->format('F Y') }}</span>
                 @endif
+                <button type="button" class="inv-ready-btn" onclick="selectReadyRooms()">
+                    Select rooms with readings
+                </button>
             </div>
 
             <div class="inv-scroll">
@@ -125,6 +128,7 @@
                                     <label class="cb-wrap">
                                         <input type="checkbox" class="row-cb" value="{{ $invoice->id }}"
                                             data-room="{{ $invoice->room->number }}" data-month="{{ $invoice->month }}"
+                                            data-ready="{{ $invoice->electric_new > 0 || $invoice->water_new > 0 ? 1 : 0 }}"
                                             onchange="onRowCheckChange()">
                                         <span class="cb-box"></span>
                                     </label>
@@ -456,6 +460,7 @@
     {{-- JSZip CDN --}}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js"></script>
 
     {{-- Flatpickr month picker --}}
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css">
@@ -720,7 +725,21 @@
             label.textContent = `Download ${buildZipName()}`;
         }
 
-        // ── PDF fetch + ZIP ────────────────────────────────────
+        // R24 -> "24", RA1 -> "1a" (same names you rename the screenshots to)
+        function roomFileName(num) {
+            const m = /^R(A?)(\d+)$/i.exec(String(num).trim());
+            return m ? m[2] + (m[1] ? 'a' : '') : String(num).replace(/[^a-zA-Z0-9_\-]/g, '_');
+        }
+
+        // Tick every room whose meter reading is done (skips 0/0 rooms)
+        function selectReadyRooms() {
+            document.querySelectorAll('.row-cb').forEach(cb => {
+                cb.checked = cb.dataset.ready === '1';
+            });
+            onRowCheckChange();
+        }
+
+        // ── Invoice PNGs + ZIP ─────────────────────────────────
         async function downloadSelectedAsZip() {
             const checked = getChecked();
             if (!checked.length) return;
@@ -737,26 +756,46 @@
             try {
                 const zip = new JSZip();
 
-                // Fetch PDFs in parallel (each invoice has a /invoices/{id}/pdf route)
-                const fetches = checked.map(async (cb) => {
-                    const id = cb.value;
-                    const room = cb.dataset.room || id;
+                // Render each invoice card to a PNG (same picture you screenshot
+                // from the eye-icon modal) and name it by room number.
+                const wasDark = document.documentElement.classList.contains('dark');
+                document.documentElement.classList.remove('dark');
+                // The off-screen offset must live on an outer holder: html-to-image
+                // copies the rendered node's own styles, so an offset on the node
+                // itself would draw the picture outside its frame (blank PNG).
+                const holder = document.createElement('div');
+                holder.style.cssText = 'position:fixed;left:-10000px;top:0;';
+                const stage = document.createElement('div');
+                stage.style.cssText = 'width:620px;padding:24px;background:#fff;';
+                holder.appendChild(stage);
+                document.body.appendChild(holder);
 
-                    const response = await fetch(`/invoices/${id}/pdf`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
+                try {
+                    let done = 0;
+                    for (const cb of checked) {
+                        const tpl = document.getElementById('print-data-' + cb.value);
+                        if (!tpl) continue;
+                        stage.innerHTML = tpl.innerHTML;
+                        stage.querySelectorAll('.pinv-print-btn-wrap').forEach(el => el.remove());
+                        if (document.fonts && document.fonts.ready) await document.fonts.ready;
 
-                    if (!response.ok) throw new Error(`Failed for invoice ${id}`);
+                        const dataUrl = await htmlToImage.toPng(stage, {
+                            pixelRatio: 2,
+                            backgroundColor: '#ffffff',
+                            cacheBust: true
+                        });
+                        zip.file(roomFileName(cb.dataset.room) + '.png', dataUrl.split(',')[1], {
+                            base64: true
+                        });
 
-                    const blob = await response.blob();
-                    // File name: room number, sanitised
-                    const fileName = `Room_${String(room).replace(/[^a-zA-Z0-9_\-]/g, '_')}.pdf`;
-                    zip.file(fileName, blob);
-                });
-
-                await Promise.all(fetches);
+                        done++;
+                        const s = btn.querySelector('span');
+                        if (s) s.textContent = `Generating ${done}/${checked.length}…`;
+                    }
+                } finally {
+                    holder.remove();
+                    if (wasDark) document.documentElement.classList.add('dark');
+                }
 
                 const zipBlob = await zip.generateAsync({
                     type: 'blob'
@@ -1124,6 +1163,22 @@
 
         .swal2-styled.swal2-cancel {
             background-color: #8083A3 !important;
+        }
+
+        .inv-ready-btn {
+            margin-left: auto;
+            padding: 7px 14px;
+            border-radius: 7px;
+            border: 1px solid rgba(115, 100, 219, .35);
+            background: rgba(115, 100, 219, .1);
+            color: #7364DB;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .inv-ready-btn:hover {
+            background: rgba(115, 100, 219, .2);
         }
 
         /* Spinner animation */

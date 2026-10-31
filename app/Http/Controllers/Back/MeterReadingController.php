@@ -133,7 +133,8 @@ class MeterReadingController extends Controller
                     'electric_cost' => $electricUsedPrice,
                     'rent_cost' => $room->rent_price,
                     'total_amount' => round($room->rent_price + $waterUsedPrice + $electricUsedPrice, 2),
-                    'status' => 'unpaid',
+                    // A room with a meter reading is marked paid automatically.
+                    'status' => ($waterNew > 0 || $electricNew > 0) ? 'paid' : 'unpaid',
                 ],
             );
         }
