@@ -5094,10 +5094,10 @@ class MeterReadingSeeder extends Seeder
                 'id' => 565,
                 'room_id' => 25,
                 'month' => '2026-10',
-                'water_reading' => 0,
-                'electric_reading' => 0,
+                'water_reading' => 347,
+                'electric_reading' => 1233,
                 'created_at' => '2026-10-06 18:30:00',
-                'updated_at' => '2026-10-06 18:30:00',
+                'updated_at' => '2026-10-31 15:54:00',
             ],
             [
                 'id' => 566,
